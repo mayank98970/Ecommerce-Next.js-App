@@ -45,7 +45,7 @@ export default function AdminDashboard() {
     }
 
     // Check if user has admin role
-    if (session.user?.role !== 'admin') {
+    if (!session.user?.role || session.user.role !== 'admin') {
       router.push('/');
       return;
     }
