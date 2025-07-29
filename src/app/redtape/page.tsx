@@ -77,7 +77,7 @@ export default function RedTapePage() {
     localStorage.setItem(key, JSON.stringify(newWishlist));
   };
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = () => {
     toast.success('Added to cart!');
     // Add cart logic here if needed
   };
@@ -109,7 +109,7 @@ export default function RedTapePage() {
             </div>
             <h3 className="font-semibold text-base sm:text-lg mb-2 text-gray-900 text-center break-words">{product.name}</h3>
             <span className="text-blue-600 font-bold mb-4">${product.price.toFixed(2)}</span>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full" onClick={() => handleAddToCart(product)}>Add to Cart</button>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full" onClick={handleAddToCart}>Add to Cart</button>
           </div>
         ))}
       </div>

@@ -24,6 +24,10 @@ interface Review {
   createdAt: string;
 }
 
+interface CartItem extends Product {
+  quantity: number;
+}
+
 export default function ProductDetailPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -34,7 +38,7 @@ export default function ProductDetailPage() {
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewError, setReviewError] = useState('');
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [editingReview, setEditingReview] = useState(false);
   const [editReviewText, setEditReviewText] = useState('');
   const [editReviewRating, setEditReviewRating] = useState(5);
@@ -118,7 +122,7 @@ export default function ProductDetailPage() {
       router.push('/api/auth/signin');
       return;
     }
-    if (!product) return;
+    if (!product || !session?.user?.email) return;
     const cartKey = `cart_${session.user.email}`;
     const existing = cart.find((item) => item._id === product._id);
     let newCart;
@@ -165,7 +169,7 @@ export default function ProductDetailPage() {
           .then(res => res.json())
           .then(data => setReviews(data));
       }
-    } catch (err) {
+    } catch {
       setReviewError('Failed to submit review');
     }
   };
@@ -198,7 +202,7 @@ export default function ProductDetailPage() {
           .then(res => res.json())
           .then(data => setReviews(data));
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to update review');
     }
   };
@@ -218,7 +222,7 @@ export default function ProductDetailPage() {
           .then(res => res.json())
           .then(data => setReviews(data));
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete review');
     }
   };

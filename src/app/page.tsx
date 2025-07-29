@@ -63,7 +63,7 @@ export default function Home() {
   const { data: session } = useSession();
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [wishlist, setWishlist] = useState<string[]>([]);
+
   const [search, setSearch] = useState("");
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [loadingProducts, setLoadingProducts] = useState(true);

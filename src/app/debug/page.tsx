@@ -220,7 +220,7 @@ export default function DebugPage() {
           <div className="space-y-3 text-gray-300">
             <div className="flex items-start gap-2">
               <span className="text-blue-400">1.</span>
-              <span>Make sure you've visited <code className="bg-black/20 px-2 py-1 rounded">/admin-setup</code> and set your role to admin</span>
+              <span>Make sure you&apos;ve visited <code className="bg-black/20 px-2 py-1 rounded">/admin-setup</code> and set your role to admin</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-400">2.</span>
@@ -232,7 +232,7 @@ export default function DebugPage() {
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-400">4.</span>
-              <span>If role is still "user", the database update may have failed</span>
+              <span>If role is still &quot;user&quot;, the database update may have failed</span>
             </div>
           </div>
         </div>
@@ -250,7 +250,7 @@ export default function DebugPage() {
             
             {roleStatus.needsFix && (
               <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-                <p className="text-yellow-400 mb-3">Some users don't have role field. This needs to be fixed.</p>
+                <p className="text-yellow-400 mb-3">Some users don&apos;t have role field. This needs to be fixed.</p>
                 <button
                   onClick={fixRoles}
                   disabled={fixingRoles}
