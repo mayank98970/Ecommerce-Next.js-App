@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { FaStar, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaStar, FaEdit, FaTrash, FaSpinner } from 'react-icons/fa';
 
 interface Product {
   _id: string;
@@ -38,20 +38,27 @@ export default function ProductDetailPage() {
   const [editingReview, setEditingReview] = useState(false);
   const [editReviewText, setEditReviewText] = useState('');
   const [editReviewRating, setEditReviewRating] = useState(5);
+  const [loading, setLoading] = useState(true);
 
   // Fetch product
   useEffect(() => {
     if (!id) return;
+    setLoading(true);
     fetch(`/api/products/${id}`)
       .then(async res => {
         if (!res.ok) {
           setProduct(null);
+          setLoading(false);
           return;
         }
         const data = await res.json();
         setProduct(data);
+        setLoading(false);
       })
-      .catch(() => setProduct(null));
+      .catch(() => {
+        setProduct(null);
+        setLoading(false);
+      });
   }, [id]);
 
   // Fetch reviews
@@ -93,7 +100,7 @@ export default function ProductDetailPage() {
         try {
           // Sanitize: ensure price is a number
           const parsed = JSON.parse(savedCart);
-          const sanitized = parsed.map((item: any) => ({
+          const sanitized = parsed.map((item: { id: string; name: string; price: number | string; image: string; quantity: number; _id?: string }) => ({
             ...item,
             price: typeof item.price === 'string' ? parseFloat(item.price.replace(/[^\d.]/g, '')) : item.price,
             quantity: item.quantity || 1
@@ -216,6 +223,15 @@ export default function ProductDetailPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <FaSpinner className="animate-spin text-4xl mr-2" />
+        <span>Loading...</span>
+      </div>
+    );
+  }
+
   if (!product) {
     return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
   }
@@ -225,20 +241,20 @@ export default function ProductDetailPage() {
   const userReview = session ? reviews.find(r => r.userName === session.user?.name) : null;
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
+    <div className="min-h-screen bg-black text-white p-2 sm:p-4">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Image */}
         <div className="flex flex-col items-center">
-          <Image src={product.image} alt={product.name} width={400} height={400} className="rounded-xl object-contain bg-white" />
+          <Image src={product.image} alt={product.name} width={400} height={400} className="rounded-xl object-contain bg-white w-full max-w-xs sm:max-w-md md:max-w-lg" />
         </div>
         {/* Product Info */}
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold">{product.name}</h1>
-          <div className="text-xl text-blue-400 font-bold">${product.price.toFixed(2)}</div>
-          <div className="text-gray-300">{product.description}</div>
-          <div className="flex gap-4 mt-4">
-            <button onClick={handleAddToCart} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold">Add to Cart</button>
-            <button onClick={handleBuyNow} className="px-6 py-2 bg-green-600 hover:bg-green-700 rounded text-white font-semibold">Buy Now</button>
+        <div className="flex flex-col gap-4 w-full">
+          <h1 className="text-2xl sm:text-3xl font-bold break-words">{product.name}</h1>
+          <div className="text-lg sm:text-xl text-blue-400 font-bold">${product.price.toFixed(2)}</div>
+          <div className="text-gray-300 break-words">{product.description}</div>
+          <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full">
+            <button onClick={handleAddToCart} className="flex-1 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold">Add to Cart</button>
+            <button onClick={handleBuyNow} className="flex-1 px-6 py-2 bg-green-600 hover:bg-green-700 rounded text-white font-semibold">Buy Now</button>
           </div>
         </div>
       </div>
@@ -334,13 +350,13 @@ export default function ProductDetailPage() {
       {/* Related Items */}
       <div className="max-w-5xl mx-auto mt-16">
         <h2 className="text-2xl font-bold mb-4">Related Items</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           {related.map(item => (
             <div key={item._id} className="bg-gray-900 rounded-lg p-4 flex flex-col items-center">
-              <Image src={item.image} alt={item.name} width={120} height={120} className="rounded mb-2 object-contain bg-white" />
-              <div className="font-semibold text-center">{item.name}</div>
+              <Image src={item.image} alt={item.name} width={120} height={120} className="rounded mb-2 object-contain bg-white w-full max-w-[100px] sm:max-w-[120px]" />
+              <div className="font-semibold text-center break-words">{item.name}</div>
               <div className="text-blue-400 font-bold mb-2">${item.price.toFixed(2)}</div>
-              <button onClick={() => router.push(`/product/${item._id}`)} className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-white text-sm">View</button>
+              <button onClick={() => router.push(`/product/${item._id}`)} className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-white text-sm w-full mt-2">View</button>
             </div>
           ))}
         </div>

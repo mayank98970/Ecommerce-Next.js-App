@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 interface UserData {
   user: {
@@ -263,18 +264,15 @@ export default function DebugPage() {
         )}
 
         <div className="mt-8 flex gap-4">
-          <a
+          <Link
             href="/admin-setup"
             className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 font-semibold"
           >
             Go to Admin Setup
-          </a>
-          <a
-            href="/"
-            className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 font-semibold"
-          >
+          </Link>
+          <Link href="/" className="text-blue-400 hover:text-blue-600 underline">
             Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

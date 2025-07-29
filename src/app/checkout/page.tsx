@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { FaCreditCard, FaShippingFast, FaLock, FaCheck, FaArrowLeft } from 'react-icons/fa';
+import Link from 'next/link';
+import { FaCreditCard, FaShippingFast, FaLock, FaCheck, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 import Image from "next/image";
+import toast from 'react-hot-toast';
 
 interface CartItem {
   id: number;
@@ -39,6 +41,7 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
 
@@ -63,9 +66,11 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (status === 'loading') return;
+    setInitialLoading(true);
     
     if (!session) {
       router.push('/');
+      setInitialLoading(false);
       return;
     }
 
@@ -88,6 +93,7 @@ export default function CheckoutPage() {
 
     // Load user profile data
     loadUserProfile();
+    setInitialLoading(false);
   }, [session, status, router]);
 
   const loadUserProfile = async () => {
@@ -209,6 +215,7 @@ export default function CheckoutPage() {
         console.log('Order result:', result);
         setOrderNumber(result.orderNumber);
         setOrderPlaced(true);
+        toast.success('Order placed successfully!');
         
         // Clear user-specific cart
         if (session?.user?.email) {
@@ -218,21 +225,20 @@ export default function CheckoutPage() {
         setCart([]);
       } else {
         const errorData = await response.json();
-        console.error('Failed to place order:', errorData);
-        alert('Failed to place order: ' + (errorData.error || 'Unknown error'));
+        toast.error('Failed to place order: ' + (errorData.error || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Error placing order: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      toast.error('Error placing order: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setLoading(false);
     }
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || initialLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
-        <div className="text-white text-2xl">Loading Checkout...</div>
+        <FaSpinner className="animate-spin text-4xl text-white mr-2" />
+        <span className="text-white text-2xl">Loading Checkout...</span>
       </div>
     );
   }
@@ -250,12 +256,12 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-white text-2xl mb-4">Your cart is empty</div>
-          <a
+          <Link
             href="/"
             className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
           >
             Continue Shopping
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -276,18 +282,18 @@ export default function CheckoutPage() {
             You will receive an email confirmation shortly. You can track your order in your profile.
           </p>
           <div className="flex gap-4">
-            <a
-              href="/profile"
+            <Link
+              href="/profile?tab=orders"
               className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
             >
               View Orders
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
             >
               Continue Shopping
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -295,24 +301,24 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 px-2 sm:px-0">
       {/* Header */}
       <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <a
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
+              <Link
                 href="/cart"
                 className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200"
               >
                 <FaArrowLeft />
                 Back to Cart
-              </a>
+              </Link>
             </div>
-            <div>
+            <div className="w-full sm:w-auto flex justify-center">
               <h1 className="text-2xl font-bold text-white">Checkout</h1>
             </div>
-            <div className="flex items-center gap-2 text-gray-300">
+            <div className="flex items-center gap-2 text-gray-300 w-full sm:w-auto justify-center sm:justify-end">
               <FaLock />
               <span className="text-sm">Secure Checkout</span>
             </div>
@@ -320,7 +326,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Checkout Form */}
           <div className="lg:col-span-2">

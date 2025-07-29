@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import './shiny-hero.css';
 import { useRouter } from "next/navigation";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaSpinner } from "react-icons/fa";
 import { useSession, signIn, signOut } from "next-auth/react";
+import toast from "react-hot-toast";
 
 interface Product {
   _id: string;
@@ -59,15 +60,12 @@ const brandCategories: Record<string, string[]> = {
 };
 
 export default function Home() {
-  const { data: session, status } = useSession();
-  const [showLogin, setShowLogin] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
+  const { data: session } = useSession();
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [authError, setAuthError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const router = useRouter();
 
@@ -136,18 +134,7 @@ export default function Home() {
     }
   }, [cart, session]);
 
-  // Filtered products based on search
-  let filteredProducts = products;
-  let searchHeading = "Featured Products";
-  if (search.trim().length > 0) {
-    if (search.toLowerCase().includes("sneaker")) {
-      filteredProducts = products.filter(p => p.name.toLowerCase().includes("sneaker"));
-      searchHeading = "Sneakers Categories";
-    } else {
-      filteredProducts = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
-      searchHeading = `Results for "${search}"`;
-    }
-  }
+
 
   // Filter products by selected brand
   let displayProducts = products;
@@ -163,90 +150,18 @@ export default function Home() {
     setCart((prev) => {
       const existing = prev.find(item => item._id === product._id);
       if (existing) {
+        toast.success('Increased quantity in cart!');
         return prev.map(item =>
           item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
+        toast.success('Added to cart!');
         return [...prev, { ...product, quantity: 1 }];
       }
     });
   };
 
-  // Handle login
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setAuthError("");
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setAuthError('Invalid email or password');
-      } else {
-        setShowLogin(false);
-        setAuthError("");
-      }
-    } catch (error) {
-      setAuthError('An error occurred during login');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle signup
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setAuthError("");
-
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Auto-login after successful signup
-        const result = await signIn('credentials', {
-          email,
-          password,
-          redirect: false,
-        });
-
-        if (result?.error) {
-          setAuthError('Account created but login failed. Please try logging in.');
-        } else {
-          setShowSignup(false);
-          setAuthError("");
-        }
-      } else {
-        setAuthError(data.error || 'Failed to create account');
-      }
-    } catch (error) {
-      setAuthError('An error occurred during signup');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   return (
     <div className="font-sans min-h-screen flex flex-col bg-black">
@@ -264,6 +179,9 @@ export default function Home() {
                     <span className="ml-1 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-bold">{cart.length}</span>
                   )}
                 </a>
+              </li>
+              <li>
+                <a href="/profile?tab=orders" className="hover:text-blue-400 transition">Orders</a>
               </li>
             </ul>
             {/* Search Bar */}
@@ -290,51 +208,29 @@ export default function Home() {
             {/* Login/Signup or User Menu */}
             <div className="flex gap-2 ml-4">
               {session ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-300">Welcome, {session.user?.name}</span>
-                  <a
-                    href="/profile"
-                    className="px-4 py-1 rounded bg-green-600 hover:bg-green-700 transition text-white font-semibold"
-                  >
-                    Profile
-                  </a>
-                  {session.user?.role === 'admin' && (
-                    <a
-                      href="/admin"
-                      className="px-4 py-1 rounded bg-purple-600 hover:bg-purple-700 transition text-white font-semibold"
-                    >
-                      Admin
-                    </a>
-                  )}
+                <div className="flex items-center gap-4">
+                  <span className="text-white">{session.user?.name}</span>
                   <button
+                    onClick={() => signOut()}
                     className="px-4 py-1 rounded bg-red-600 hover:bg-red-700 transition text-white font-semibold"
-                    onClick={() => {
-                      // Clear user-specific cart on logout
-                      if (session?.user?.email) {
-                        const cartKey = `cart_${session.user.email}`;
-                        localStorage.removeItem(cartKey);
-                      }
-                      setCart([]);
-                      signOut();
-                    }}
                   >
                     Logout
                   </button>
                 </div>
               ) : (
                 <>
-                  <button
-                    className="px-4 py-1 rounded bg-blue-600 hover:bg-blue-700 transition text-white font-semibold"
-                    onClick={() => setShowLogin(true)}
-                  >
-                    Login
-                  </button>
-                  <button
-                    className="px-4 py-1 rounded bg-gray-800 hover:bg-gray-700 transition text-white font-semibold border border-gray-600"
-                    onClick={() => setShowSignup(true)}
-                  >
-                    Sign Up
-                  </button>
+                                      <button
+                      className="px-4 py-1 rounded bg-blue-600 hover:bg-blue-700 transition text-white font-semibold"
+                      onClick={() => signIn()}
+                    >
+                      Login
+                    </button>
+                    <button
+                      className="px-4 py-1 rounded bg-gray-800 hover:bg-gray-700 transition text-white font-semibold border border-gray-600"
+                      onClick={() => signIn()}
+                    >
+                      Sign Up
+                    </button>
                 </>
               )}
             </div>
@@ -357,10 +253,15 @@ export default function Home() {
 
       {/* Featured Products */}
       <section
-        className="py-16 px-4 max-w-6xl mx-auto w-full relative"
+        className="py-16 px-2 sm:px-4 max-w-6xl mx-auto w-full relative"
         // No background image
       >
-        {!selectedBrand ? (
+        {loadingProducts ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <FaSpinner className="animate-spin text-3xl text-blue-400 mr-2" />
+            <span className="text-white">Loading products...</span>
+          </div>
+        ) : !selectedBrand ? (
           <>
             <h2 className="text-2xl font-bold mb-8 text-center text-gray-100">Select a Brand</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
@@ -445,28 +346,6 @@ export default function Home() {
         </a>
       </section>
 
-      {/* Newsletter Signup */}
-      <section className="py-12 px-4 max-w-xl mx-auto w-full">
-        <div className="bg-gray-900 rounded-lg shadow p-8 text-center">
-          <h4 className="text-lg font-bold mb-2 text-gray-100">Stay Updated!</h4>
-          <p className="mb-4 text-gray-400">Sign up for our newsletter to get the latest deals and updates.</p>
-          <form className="flex flex-col sm:flex-row gap-2 justify-center">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="border border-gray-700 bg-black text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-              required
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition"
-            >
-              Subscribe
-            </button>
-          </form>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="bg-black text-gray-400 py-6 text-center mt-auto border-t border-gray-800">
         <div className="mb-2">&copy; {new Date().getFullYear()} ShopEase. All rights reserved.</div>
@@ -477,63 +356,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Login Modal */}
-      {showLogin && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-sm relative">
-            <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl"
-              onClick={() => setShowLogin(false)}
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4 text-white">Login</h2>
-            {authError && <p className="text-red-400 text-sm mb-4">{authError}</p>}
-            <form onSubmit={handleLogin} className="flex flex-col gap-4">
-              <input name="email" type="email" placeholder="Email" className="px-3 py-2 rounded bg-black border border-gray-700 text-white" required />
-              <input name="password" type="password" placeholder="Password" className="px-3 py-2 rounded bg-black border border-gray-700 text-white" required />
-              <button 
-                type="submit" 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded disabled:opacity-50"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Logging in...' : 'Login'}
-              </button>
-            </form>
-            <div className="mt-4 text-right">
-              <a href="#" className="text-blue-400 hover:underline text-sm">Forgot password?</a>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Signup Modal */}
-      {showSignup && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-sm relative">
-            <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl"
-              onClick={() => setShowSignup(false)}
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4 text-white">Sign Up</h2>
-            {authError && <p className="text-red-400 text-sm mb-4">{authError}</p>}
-            <form onSubmit={handleSignup} className="flex flex-col gap-4">
-              <input name="name" type="text" placeholder="Name" className="px-3 py-2 rounded bg-black border border-gray-700 text-white" required />
-              <input name="email" type="email" placeholder="Email" className="px-3 py-2 rounded bg-black border border-gray-700 text-white" required />
-              <input name="password" type="password" placeholder="Password" className="px-3 py-2 rounded bg-black border border-gray-700 text-white" required />
-              <button 
-                type="submit" 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded disabled:opacity-50"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Creating account...' : 'Sign Up'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

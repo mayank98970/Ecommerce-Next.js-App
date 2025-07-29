@@ -35,8 +35,9 @@ export default function AdminSetup() {
       } else {
         setError(data.error);
       }
-    } catch (error) {
-      setError('Failed to set up admin');
+    } catch (err) {
+      console.error('Setup failed:', err);
+      setMessage('Setup failed. Please try again.');
     } finally {
       setLoading(false);
     }

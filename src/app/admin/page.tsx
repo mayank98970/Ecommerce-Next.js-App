@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaUser, FaEnvelope, FaCalendar } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaPlus, FaUser, FaEnvelope, FaCalendar } from 'react-icons/fa';
 
 interface User {
   _id: string;

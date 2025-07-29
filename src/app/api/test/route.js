@@ -11,9 +11,8 @@ export async function POST(request) {
       message: 'POST request received!',
       data: data 
     });
-  } catch (error) {
-    return NextResponse.json({ 
-      error: 'Invalid JSON' 
-    }, { status: 400 });
+  } catch (err) {
+    console.error('Test failed:', err);
+    return NextResponse.json({ error: 'Test failed' }, { status: 500 });
   }
 } 

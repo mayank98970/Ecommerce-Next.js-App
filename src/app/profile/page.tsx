@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { FaUser, FaShoppingBag, FaHeart, FaCog, FaEdit, FaSave, FaTimes, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
+import Link from 'next/link';
+import { FaUser, FaShoppingBag, FaHeart, FaCog, FaEdit, FaSave, FaTimes, FaSpinner } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 interface User {
   _id: string;
@@ -129,11 +131,12 @@ export default function UserProfile() {
         const updatedUser = await response.json();
         setUser(updatedUser.user || updatedUser);
         setIsEditing(false);
+        toast.success('Profile updated!');
       } else {
-        console.error('Failed to update profile');
+        toast.error('Failed to update profile');
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      toast.error('Error updating profile');
     }
   };
 
@@ -162,7 +165,8 @@ export default function UserProfile() {
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
-        <div className="text-white text-2xl">Loading Profile...</div>
+        <FaSpinner className="animate-spin text-4xl text-white mr-2" />
+        <span className="text-white text-2xl">Loading Profile...</span>
       </div>
     );
   }
@@ -176,13 +180,13 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 px-2 sm:px-0">
       {/* Header */}
       <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">My Profile</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">My Profile</h1>
               <p className="text-gray-300 mt-1">Manage your account and view orders</p>
             </div>
             <div className="text-right">
@@ -193,9 +197,9 @@ export default function UserProfile() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8">
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 bg-white/10 backdrop-blur-sm rounded-xl p-1 mb-8 border border-white/20">
+        <div className="flex flex-wrap gap-1 bg-white/10 backdrop-blur-sm rounded-xl p-1 mb-8 border border-white/20">
           <button
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
@@ -447,12 +451,9 @@ export default function UserProfile() {
                 <FaShoppingBag className="text-6xl text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-300 text-lg mb-2">No orders yet</p>
                 <p className="text-gray-400">Start shopping to see your order history here</p>
-                <a
-                  href="/"
-                  className="inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
-                >
+                <Link href="/" className="inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
                   Start Shopping
-                </a>
+                </Link>
               </div>
             ) : (
               <div className="space-y-6">
@@ -515,12 +516,9 @@ export default function UserProfile() {
               <FaHeart className="text-6xl text-gray-400 mx-auto mb-4" />
               <p className="text-gray-300 text-lg mb-2">Your wishlist is empty</p>
               <p className="text-gray-400">Save items you love for later</p>
-              <a
-                href="/"
-                className="inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
-              >
+              <Link href="/" className="inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
                 Browse Products
-              </a>
+              </Link>
             </div>
           </div>
         )}
