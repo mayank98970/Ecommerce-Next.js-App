@@ -228,7 +228,7 @@ export default function DebugPage() {
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-400">3.</span>
-              <span>Check that your role shows as "admin" above</span>
+              <span>Check that your role shows as &quot;admin&quot; above</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-400">4.</span>

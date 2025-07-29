@@ -135,7 +135,7 @@ export default function UserProfile() {
       } else {
         toast.error('Failed to update profile');
       }
-    } catch (error) {
+    } catch {
       toast.error('Error updating profile');
     }
   };
