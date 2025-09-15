@@ -1,11 +1,11 @@
 "use client";
 
-import { signIn, getProviders } from "next-auth/react";
+import { signIn, getProviders, type ClientSafeProvider } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignIn() {
-  const [providers, setProviders] = useState<any>({});
+  const [providers, setProviders] = useState<Record<string, ClientSafeProvider> | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +41,7 @@ export default function SignIn() {
       } else {
         router.push("/");
       }
-    } catch (error) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -54,7 +54,7 @@ export default function SignIn() {
         <h1 className="text-3xl font-bold text-white text-center mb-8">Sign In</h1>
         
         {/* Google Sign In */}
-        {providers.google && (
+        {providers?.google && (
           <button
             onClick={handleGoogleSignIn}
             className="w-full bg-white text-black font-semibold py-3 px-4 rounded-lg mb-4 hover:bg-gray-100 transition flex items-center justify-center gap-3"

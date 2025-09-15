@@ -30,7 +30,7 @@ export default function SignUp() {
       }
 
       router.push("/auth/signin");
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
