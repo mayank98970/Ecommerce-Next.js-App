@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import './shiny-hero.css';
 import { useRouter } from "next/navigation";
-import { FaSearch, FaSpinner } from "react-icons/fa";
+import { FaSearch, FaSpinner, FaShoppingCart, FaUser, FaBox } from "react-icons/fa";
 import { useSession, signIn, signOut } from "next-auth/react";
 import toast from "react-hot-toast";
 
@@ -147,6 +148,11 @@ export default function Home() {
 
   // Add to cart handler
   const handleAddToCart = (product: Product) => {
+    if (!session) {
+      toast.error('Please sign in to add items to your cart');
+      router.push('/auth/signin');
+      return;
+    }
     setCart((prev) => {
       const existing = prev.find(item => item._id === product._id);
       if (existing) {
@@ -172,20 +178,9 @@ export default function Home() {
           <div className="flex gap-8 items-center">
             <ul className="flex gap-8 items-center text-base font-medium">
               <li><a href="/contact" className="hover:text-blue-400 transition">Contact Us</a></li>
-              <li className="relative">
-                <a href="/cart" className="hover:text-blue-400 transition flex items-center">
-                  Cart
-                  {cart.length > 0 && (
-                    <span className="ml-1 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-bold">{cart.length}</span>
-                  )}
-                </a>
-              </li>
-              <li>
-                <a href="/profile?tab=orders" className="hover:text-blue-400 transition">Orders</a>
-              </li>
             </ul>
             {/* Search Bar */}
-            <form className="ml-4 hidden md:block relative w-64" onSubmit={e => {
+            <form className="ml-4 hidden md:block relative w-64" onSubmit={e => { 
               e.preventDefault();
               handleBrandSearch();
             }}>
@@ -205,32 +200,49 @@ export default function Home() {
                 <FaSearch />
               </button>
             </form>
-            {/* Login/Signup or User Menu */}
-            <div className="flex gap-2 ml-4">
+            {/* Navigation Links */}
+            <div className="flex items-center gap-6 ml-4">
               {session ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-white">{session.user?.name}</span>
-                  <button
-                    onClick={() => signOut()}
-                    className="px-4 py-1 rounded bg-red-600 hover:bg-red-700 transition text-white font-semibold"
-                  >
-                    Logout
-                  </button>
-                </div>
+                <>
+                  <Link href="/cart" className="flex items-center gap-2 text-white hover:text-blue-400 transition">
+                    <FaShoppingCart />
+                    Cart
+                    {cart.length > 0 && (
+                      <span className="bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-bold">{cart.length}</span>
+                    )}
+                  </Link>
+                  <Link href="/profile?tab=orders" className="flex items-center gap-2 text-white hover:text-blue-400 transition">
+                    <FaBox />
+                    Orders
+                  </Link>
+                  <Link href="/profile" className="flex items-center gap-2 text-white hover:text-blue-400 transition">
+                    <FaUser />
+                    Profile
+                  </Link>
+                  <div className="flex items-center gap-4">
+                    <span className="text-white">{session.user?.name}</span>
+                    <button
+                      onClick={() => signOut()}
+                      className="px-4 py-1 rounded bg-red-600 hover:bg-red-700 transition text-white font-semibold"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </>
               ) : (
                 <>
-                                      <button
-                      className="px-4 py-1 rounded bg-blue-600 hover:bg-blue-700 transition text-white font-semibold"
-                      onClick={() => signIn()}
-                    >
-                      Login
-                    </button>
-                    <button
-                      className="px-4 py-1 rounded bg-gray-800 hover:bg-gray-700 transition text-white font-semibold border border-gray-600"
-                      onClick={() => signIn()}
-                    >
-                      Sign Up
-                    </button>
+                  <button
+                    className="px-4 py-1 rounded bg-blue-600 hover:bg-blue-700 transition text-white font-semibold"
+                    onClick={() => signIn()}
+                  >
+                    Login
+                  </button>
+                  <Link
+                    href="/auth/signup"
+                    className="px-4 py-2 rounded bg-gray-800 hover:bg-gray-700 transition text-white font-semibold border border-gray-600"
+                  >
+                    Sign Up
+                  </Link>
                 </>
               )}
             </div>

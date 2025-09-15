@@ -1,10 +1,15 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
 export const authOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -43,6 +48,11 @@ export const authOptions = {
       }
     })
   ],
+  pages: {
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/error',
+  },
   session: {
     strategy: 'jwt',
   },
