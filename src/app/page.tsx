@@ -200,6 +200,27 @@ export default function Home() {
                 <FaSearch />
               </button>
             </form>
+            {/* Mobile Search Bar */}
+            <form className="block md:hidden relative w-40" onSubmit={e => {
+              e.preventDefault();
+              handleBrandSearch();
+            }}>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="px-3 py-1 pr-8 rounded bg-gray-900 border border-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 bg-transparent rounded transition text-white flex items-center justify-center hover:text-blue-400"
+                onClick={handleBrandSearch}
+                aria-label="Search"
+              >
+                <FaSearch />
+              </button>
+            </form>
             {/* Navigation Links */}
             <div className="flex items-center gap-6 ml-4">
               {session ? (
@@ -265,7 +286,7 @@ export default function Home() {
 
       {/* Featured Products */}
       <section
-        className="py-16 px-2 sm:px-4 max-w-6xl mx-auto w-full relative"
+        className="py-10 px-3 sm:py-16 sm:px-4 max-w-6xl mx-auto w-full relative"
         // No background image
       >
         {loadingProducts ? (
@@ -275,21 +296,21 @@ export default function Home() {
           </div>
         ) : !selectedBrand ? (
           <>
-            <h2 className="text-2xl font-bold mb-8 text-center text-gray-100">Select a Brand</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-center text-gray-100">Select a Brand</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
               {brandList.map((brand) => (
                 <div
                   key={brand.name}
-                  className="relative group bg-black rounded-xl shadow-2xl p-6 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-[0_8px_32px_4px_rgba(255,255,255,0.15),0_1.5px_8px_2px_rgba(0,0,0,0.25)] hover:z-10 border border-gray-800 overflow-hidden hover:border-white/30 hover:-rotate-2 hover:skew-y-1"
+                  className="relative group bg-black rounded-xl shadow-2xl p-4 sm:p-6 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-105 sm:hover:scale-110 hover:shadow-[0_8px_32px_4px_rgba(255,255,255,0.15),0_1.5px_8px_2px_rgba(0,0,0,0.25)] hover:z-10 border border-gray-800 overflow-hidden hover:border-white/30 hover:-rotate-1 sm:hover:-rotate-2 sm:hover:skew-y-1"
                   style={{ perspective: '600px' }}
                   onClick={() => setSelectedBrand(brand.name)}
                 >
                   {/* Stronger CSS Glow */}
                   <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-44 rounded-full bg-white opacity-0 group-hover:opacity-80 blur-2xl transition-all duration-300 z-0 pointer-events-none" />
-                  <div className="w-32 h-32 relative mb-4 z-10">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 relative mb-4 z-10">
                     <Image src={brand.image} alt={brand.name} fill className="object-contain rounded" sizes="128px" />
                   </div>
-                  <h3 className="font-semibold text-lg text-gray-100 z-10">{brand.name}</h3>
+                  <h3 className="font-semibold text-base sm:text-lg text-gray-100 z-10">{brand.name}</h3>
                 </div>
               ))}
             </div>
@@ -302,11 +323,11 @@ export default function Home() {
             >
               &larr; Back to Brands
             </button>
-            <h2 className="text-2xl font-bold mb-8 text-center text-gray-100">{selectedBrand} Sneakers</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-center text-gray-100">{selectedBrand} Sneakers</h2>
             {categories.length > 0 && (
-              <div className="mb-8 flex flex-wrap gap-4 justify-center">
+              <div className="mb-6 sm:mb-8 flex flex-wrap gap-2 sm:gap-4 justify-center">
                 {categories.map((cat) => (
-                  <span key={cat} className="bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                  <span key={cat} className="bg-blue-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold">
                     {cat}
                   </span>
                 ))}
@@ -315,16 +336,16 @@ export default function Home() {
             {displayProducts.length === 0 ? (
               <div className="text-center text-gray-400">No products found.</div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
                 {displayProducts.map((product) => (
                   <div key={product._id}
-                    className="relative group bg-gray-900 rounded-xl shadow-2xl p-4 flex flex-col items-center transform transition-transform duration-300 hover:scale-110 hover:shadow-[0_8px_32px_4px_rgba(255,255,255,0.15),0_1.5px_8px_2px_rgba(0,0,0,0.25)] hover:z-10 border border-gray-800 overflow-hidden hover:border-white/30 hover:-rotate-2 hover:skew-y-1 cursor-pointer"
+                    className="relative group bg-gray-900 rounded-xl shadow-2xl p-3 sm:p-4 flex flex-col items-center transform transition-transform duration-300 hover:scale-105 sm:hover:scale-110 hover:shadow-[0_8px_32px_4px_rgba(255,255,255,0.15),0_1.5px_8px_2px_rgba(0,0,0,0.25)] hover:z-10 border border-gray-800 overflow-hidden hover:border-white/30 hover:-rotate-1 sm:hover:-rotate-2 sm:hover:skew-y-1 cursor-pointer"
                     style={{ perspective: '600px' }}
                     onClick={() => router.push(`/product/${product._id}`)}
                   >
                     {/* White Glow on Hover */}
                     <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full bg-white opacity-0 group-hover:opacity-80 blur-2xl transition-all duration-300 z-0 pointer-events-none" />
-                    <div className="w-32 h-32 relative mb-4 z-10">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 relative mb-4 z-10">
                       <Image
                         src={product.image}
                         alt={product.name}
@@ -333,9 +354,9 @@ export default function Home() {
                         sizes="128px"
                       />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-100 z-10">{product.name}</h3>
-                    <span className="text-blue-400 font-bold mb-4 z-10">${product.price.toFixed(2)}</span>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition z-10" onClick={e => { e.stopPropagation(); handleAddToCart(product); }}>
+                    <h3 className="font-semibold text-sm sm:text-lg mb-2 text-gray-100 z-10 text-center line-clamp-2">{product.name}</h3>
+                    <span className="text-blue-400 font-bold mb-3 sm:mb-4 z-10">${product.price.toFixed(2)}</span>
+                    <button className="bg-blue-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded hover:bg-blue-700 transition z-10" onClick={e => { e.stopPropagation(); handleAddToCart(product); }}>
                       Add to Cart
                     </button>
                   </div>
